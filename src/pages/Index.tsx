@@ -3,9 +3,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import BlueprintForm, { type BlueprintParams } from "@/components/BlueprintForm";
 import BlueprintDisplay from "@/components/BlueprintDisplay";
+import PlotImageUpload from "@/components/PlotImageUpload";
+import LayoutOptimizer from "@/components/LayoutOptimizer";
 import { Cpu } from "lucide-react";
 
+const TABS = [
+  { id: "text", label: "TEXT TO BLUEPRINT" },
+  { id: "image", label: "IMAGE TO BLUEPRINT" },
+  { id: "optimizer", label: "LAYOUT OPTIMIZER" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
 const Index = () => {
+  const [activeTab, setActiveTab] = useState<TabId>("text");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,31 +80,115 @@ const Index = () => {
         </div>
       </header>
 
+      {/* Tab navigation */}
+      <div className="border-b border-border">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex gap-0">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-5 py-3 font-mono text-xs tracking-wider transition-colors border-b-2 ${
+                  activeTab === tab.id
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8">
-          {/* Left panel - Form */}
-          <div className="space-y-4">
+        {activeTab === "text" && (
+          <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8">
+            <div className="space-y-4">
+              <div className="rounded-xl border border-border bg-card p-6">
+                <h2 className="font-mono text-sm font-semibold text-primary mb-4 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
+                  CONFIGURATION
+                </h2>
+                <BlueprintForm onGenerate={handleGenerate} isLoading={isLoading} />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="rounded-xl border border-border bg-card p-6 h-full">
+                <h2 className="font-mono text-sm font-semibold text-primary mb-4 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
+                  BLUEPRINT OUTPUT
+                </h2>
+                <BlueprintDisplay imageUrl={imageUrl} prompt={prompt} isLoading={isLoading} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "image" && (
+          <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-8">
             <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="font-mono text-sm font-semibold text-primary mb-4 flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
-                CONFIGURATION
+                PLOT IMAGE ANALYSIS
               </h2>
-              <BlueprintForm onGenerate={handleGenerate} isLoading={isLoading} />
+              <PlotImageUpload />
             </div>
-          </div>
-
-          {/* Right panel - Blueprint display */}
-          <div className="space-y-4">
-            <div className="rounded-xl border border-border bg-card p-6 h-full">
+            <div className="rounded-xl border border-border bg-card p-6">
               <h2 className="font-mono text-sm font-semibold text-primary mb-4 flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
-                BLUEPRINT OUTPUT
+                HOW IT WORKS
               </h2>
-              <BlueprintDisplay imageUrl={imageUrl} prompt={prompt} isLoading={isLoading} />
+              <div className="space-y-4 font-mono text-sm text-muted-foreground">
+                {[
+                  { step: "01", text: "Upload a plot image (satellite view, sketch, or boundary drawing)" },
+                  { step: "02", text: "AI analyzes the plot shape, boundary, and proportions" },
+                  { step: "03", text: "Configure room requirements (bedrooms, bathrooms, etc.)" },
+                  { step: "04", text: "Generate a floor plan that fits the detected plot boundary" },
+                ].map(({ step, text }) => (
+                  <div key={step} className="flex gap-3 items-start">
+                    <span className="text-primary font-bold min-w-[28px]">{step}</span>
+                    <span>{text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === "optimizer" && (
+          <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-8">
+            <div className="rounded-xl border border-border bg-card p-6">
+              <h2 className="font-mono text-sm font-semibold text-primary mb-4 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
+                LAYOUT OPTIMIZER
+              </h2>
+              <LayoutOptimizer />
+            </div>
+            <div className="rounded-xl border border-border bg-card p-6">
+              <h2 className="font-mono text-sm font-semibold text-primary mb-4 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
+                OPTIMIZATION STRATEGY
+              </h2>
+              <div className="space-y-4 font-mono text-sm text-muted-foreground">
+                <p>The AI generates 3 distinct layout options using different architectural strategies:</p>
+                <div className="space-y-3">
+                  {[
+                    { label: "Compact", desc: "Minimizes wasted space and corridors for maximum room area." },
+                    { label: "Open Plan", desc: "Connected living spaces for a spacious, modern feel." },
+                    { label: "Traditional", desc: "Separated rooms with hallways for privacy and formality." },
+                  ].map(({ label, desc }) => (
+                    <div key={label} className="p-3 rounded-lg border border-border bg-muted/30">
+                      <span className="text-primary">{label}:</span> {desc}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs">All layouts follow architectural heuristics: living room near entrance, kitchen near dining, bedrooms in quiet zones.</p>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
