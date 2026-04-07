@@ -117,12 +117,10 @@ See project ref in [.env](.env) (VITE_SUPABASE_PROJECT_ID) and [supabase/config.
 
 ---
 
-## Lovable toolchain notes
+## Archiscan toolchain notes
 
-- This repo includes optional tooling integrations:
-  - [vite.config.ts](vite.config.ts) references `lovable-tagger` plugin (dev only).
-  - Playwright fixture uses `lovable-agent-playwright-config` (see [playwright-fixture.ts](playwright-fixture.ts)).
-- These are optional for local dev; they do not change the runtime requirements of the app, but may require login/keys for Lovable services if used.
+- This repo includes optional tooling integrations used for development.
+- Remove or disable any environment-specific plugins if you don't use them locally.
 
 ---
 
