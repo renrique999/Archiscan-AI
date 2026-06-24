@@ -46,6 +46,15 @@ const parseRooms = (prompt: string) => {
 
 const roomLabel = (label: string, width: number, depth: number) => `${label}\n${Math.round(width)}' × ${Math.round(depth)}'`;
 
+const bytesToBase64 = (bytes: Uint8Array) => {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+};
+
 const getLayoutTemplate = (style: BlueprintRequest["layoutStyle"], rooms: ReturnType<typeof parseRooms>) => {
   const bedrooms = Math.max(1, Math.min(5, rooms.bedrooms));
   const bathrooms = Math.max(1, Math.min(4, rooms.bathrooms));
@@ -221,7 +230,7 @@ serve(async (req) => {
     console.log("Generating deterministic blueprint SVG with prompt:", prompt.substring(0, 100) + "...");
 
     const svg = buildBlueprintSvg(prompt, layoutStyle);
-    const imageUrl = `data:image/svg+xml;base64,${btoa(svg)}`;
+    const imageUrl = `data:image/svg+xml;base64,${bytesToBase64(new TextEncoder().encode(svg))}`;
 
     return new Response(JSON.stringify({ imageUrl }), {
       status: 200,
