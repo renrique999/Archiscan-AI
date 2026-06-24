@@ -44,14 +44,17 @@ const LayoutOptimizer = () => {
 
     const layoutStyles = [
       {
+        key: "compact",
         style: "compact and space-efficient",
         desc: "Compact Layout — Optimized for maximum space efficiency with minimal corridors.",
       },
       {
+        key: "open",
         style: "open-plan with flowing spaces",
         desc: "Open Plan Layout — Spacious feel with connected living, dining and kitchen areas.",
       },
       {
+        key: "traditional",
         style: "traditional with separated rooms and clear hallways",
         desc: "Traditional Layout — Clearly defined rooms with hallways for privacy.",
       },
@@ -65,6 +68,7 @@ const LayoutOptimizer = () => {
         const { data, error } = await supabase.functions.invoke("generate-blueprint", {
           body: {
             prompt: `Generate a clean, professional architectural 2D floor plan blueprint for a ${baseInfo}. The layout should be ${layoutStyles[i].style}. Follow architectural heuristics: living room near entrance, kitchen near dining, bedrooms in quieter zones, bathrooms near bedrooms. Include labeled rooms, dimensions, wall thickness, door openings. Use a technical blueprint style with white lines on blue background.`,
+            layoutStyle: layoutStyles[i].key,
           },
         });
         if (error) throw error;
